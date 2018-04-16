@@ -14,8 +14,14 @@ spring:
        ddl-auto: update
      show-sql: true
 
+
 spring.mvc.view.prefix: /WEB-INF/jsp/
 spring.mvc.view.suffix: .jsp
 
 spring.jackson.date-format: yyyy-MM-dd HH:mm:ss
 spring.jackson.time-zone: GMT+8
+
+spring.jmx.enabled: false
+
+multipart.maxFileSize: 10Mb
+multipart.maxRequestSize: 100Mb

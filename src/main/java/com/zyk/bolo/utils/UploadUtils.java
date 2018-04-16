@@ -33,23 +33,23 @@ public class UploadUtils {
             ext = "";
         }
         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-        String nFileName = uuid + ext;
         String dirPath = DateUtil.formatDateASYYYYMMDD(new Date());
-        String filepath = BASE_PATH + "/" + dirPath;
-        File targetFile = new File(filepath, nFileName);
-        logger.debug("上传文件：" + filepath);
-        if (!targetFile.exists()) {
-            targetFile.mkdirs();
-        } else {
-            targetFile.delete();
-        }
+        String nFileName = BASE_PATH + "/" + dirPath + uuid + ext;
+        File targetFile = new File(nFileName);
+        logger.error("上传文件：" + nFileName);
+//        if (!targetFile.exists()) {
+//            targetFile.mkdirs();
+//        } else {
+//            targetFile.delete();
+//        }
         try {
             imageFile.transferTo(targetFile);
         } catch (IllegalStateException | IOException e) {
             e.printStackTrace();
+            logger.error("上传文件成功 URL：异常");
         }
         String accessUrl = "/" + dirPath + "/" + nFileName;
-        logger.debug("上传文件成功 URL：" + accessUrl);
+        logger.error("上传文件成功 URL：" + accessUrl);
         return accessUrl;
     }
 

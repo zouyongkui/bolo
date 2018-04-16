@@ -3,6 +3,7 @@ package com.zyk.bolo.controller;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import com.alibaba.fastjson.JSONObject;
 import com.zyk.bolo.controller.base.AbstractController;
 import com.zyk.bolo.entity.Tb_Comment;
@@ -37,7 +38,6 @@ public class SoupController extends AbstractController {
             rsMap.put("msg", "");
             rsMap.put("userId", userId);
         }
-        rsMap.put("code", 1);
         return rsMap;
     }
 
@@ -73,7 +73,7 @@ public class SoupController extends AbstractController {
     public Map<String, Object> getSoupList() {
         Map<String, Object> rsMap = new HashMap<String, Object>();
         List<Tb_Soup> tbsoupList = soupService.getSoupList();
-        rsMap.put("code", 1);
+        rsMap.put("code", 0);
         rsMap.put("soupList", tbsoupList == null ? "暂时没有更新哦" : tbsoupList);
         return rsMap;
     }
@@ -91,17 +91,13 @@ public class SoupController extends AbstractController {
     public Map<String, Object> updateComment(@RequestParam(value = "userId", required = true) String userId,
                                              @RequestParam(value = "soupId", required = true) String soupId,
                                              @RequestParam(value = "content", required = true) String content) {
-        Map<String, Object> rsMap = new HashMap<String, Object>();
+        Map<String, Object> rsMap = new HashMap<>();
         int code = soupService.updateComment(userId, soupId, content);
-        List<Tb_Comment> tbCommentList = soupService.getSoupComment(soupId);
-        if (code == 1) {
-            rsMap.put("code", code);
+        rsMap.put("code", code);
+        if (code == 0) {
             rsMap.put("msg", "");
-            rsMap.put("data", tbCommentList);
         } else if (code == -1) {
-            rsMap.put("code", code);
             rsMap.put("msg", "评论不能出现作者名称哦！");
-            rsMap.put("data", tbCommentList);
         }
         return rsMap;
     }

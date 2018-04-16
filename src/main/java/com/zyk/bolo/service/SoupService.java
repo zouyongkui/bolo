@@ -8,6 +8,7 @@ import com.zyk.bolo.entity.Tb_Soup;
 import com.zyk.bolo.entity.Tb_User;
 import com.zyk.bolo.repository.CommentRepository;
 import com.zyk.bolo.repository.SoupRepository;
+import com.zyk.bolo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
@@ -24,14 +25,27 @@ public class SoupService {
     SoupRepository soupRepository;
     @Autowired
     CommentRepository commentRepository;
+    @Autowired
+    UserRepository userRepository;
 
     public String getUserId(String deviceId, String brandName, String phoneNum) {
         Tb_User user = new Tb_User();
         user.setDeviceid(deviceId);
         user.setBrandname(brandName);
         user.setPhone(phoneNum);
-        return "";
-
+        Example<Tb_User> ex = Example.of(user);
+        if (!userRepository.findAll(ex).isEmpty()) {
+            user = userRepository.findAll(ex).get(0);
+            return user.getId();
+        }
+        // TODO: 2018/4/9 异常处理
+        user.setCreatetime(new Date());
+        userRepository.saveAndFlush(user);
+        if (!userRepository.findAll(ex).isEmpty()) {
+            user = userRepository.findAll(ex).get(0);
+            return user.getId();
+        }
+        return null;
     }
 
     public int updateSoup(String content, String picUrl) {
@@ -48,16 +62,15 @@ public class SoupService {
         if (soupRepository.findAll().isEmpty()) {
             return null;
         }
-        Tb_Soup soup = soupRepository.findAll(new Sort(Sort.Direction.DESC, "createtime")).get(0);
-//        int visitCount = soup.getVisitcount();
+        //        int visitCount = soup.getVisitcount();
 //        visitCount++;
 //        soup.setVisitcount(visitCount);
 //        soupRepository.save(soup);
-        return soup;
+        return soupRepository.findAll(new Sort(Sort.Direction.DESC, "createtime")).get(0);
     }
 
     public List<Tb_Soup> getSoupList() {
-        return soupRepository.findAll();
+        return soupRepository.findAll(new Sort(Sort.Direction.DESC, "createtime"));
     }
 
     public int delComment(String commentId) {
@@ -74,6 +87,7 @@ public class SoupService {
         comment.setContent(content);
         comment.setSoupid(soupId);
         comment.setUserid(userId);
+        commentRepository.save(comment);
         return 0;
     }
 
@@ -87,6 +101,6 @@ public class SoupService {
         Tb_Comment tb_comment = new Tb_Comment();
         tb_comment.setSoupid(soupId);
         Example<Tb_Comment> ex = Example.of(tb_comment);
-        return commentRepository.findAll(ex, new Sort(Sort.Direction.DESC, "createtime"));
+        return commentRepository.findAll(ex, new Sort(Sort.Direction.ASC, "createtime"));
     }
 }

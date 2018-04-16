@@ -8,11 +8,13 @@ import com.zyk.bolo.entity.Tb_Community;
 import com.zyk.bolo.entity.Tb_Contribution;
 import com.zyk.bolo.entity.Tb_Floor;
 import com.zyk.bolo.service.CommunityService;
+import com.zyk.bolo.utils.UploadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 
 @RestController
@@ -28,13 +30,21 @@ public class CommunityController {
 
     @RequestMapping(value = "/updateCommunity", method = RequestMethod.POST)
     public Map<String, Object> updateCommunity(
-            @RequestParam(value = "content", required = false) String content,
-            @RequestParam(value = "userId", required = false) String userId,
-            @RequestParam(value = "title", required = false) String title) {
+            @RequestParam(value = "content") String content,
+            @RequestParam(value = "userId") String userId,
+            @RequestParam(value = "title") String title,
+            @RequestParam(value = "pic", required = false) MultipartFile pic) {
+        String picUrl = "----";
+        if (pic != null && pic.getSize() > 0) {
+            picUrl = UploadUtils.upload(pic);
+            logger.error("picUrl" + picUrl);
+        } else {
+            logger.error("picUrl" + "是空的");
+        }
         Map<String, Object> rsMap = new HashMap<String, Object>();
-        int code = service.updateCommunity(userId, title, content);
-        List<Tb_Community> community = service.getCommunityList();
-        rsMap.put("communityList", community);
+        int code = service.updateCommunity(userId, title, content, picUrl);
+//        List<Tb_Community> community = service.getCommunityList();
+//        rsMap.put("communityList", community);
         rsMap.put("code", code);
         rsMap.put("msg", "");
         return rsMap;
@@ -66,11 +76,6 @@ public class CommunityController {
             @RequestParam(value = "communityId", required = true) String communityId) {
         Map<String, Object> rsMap = new HashMap<String, Object>();
         int code = service.updateFloor(userId, communityId, content);
-        List<Tb_Floor> floors = service.getFloors(communityId);
-        Tb_Community community = service.getCommunity(communityId);
-        int visitCount = community.getVisitcount();
-        rsMap.put("floors", floors);
-        rsMap.put("visitCount", visitCount);
         rsMap.put("code", code);
         rsMap.put("msg", "");
         return rsMap;
@@ -82,10 +87,9 @@ public class CommunityController {
 
     @RequestMapping(value = "/getFloors", method = RequestMethod.GET)
     public Map<String, Object> getCommunity(
-            @RequestParam(value = "communityId", required = true) String communityId) {
+            @RequestParam(value = "communityId") String communityId) {
         Map<String, Object> rsMap = new HashMap<String, Object>();
         // 增加访问次数
-        service.setCommunityVisit(communityId);
         List<Tb_Floor> floors = service.getFloors(communityId);
         Tb_Community community = service.getCommunity(communityId);
         int visitCount = community.getVisitcount();
