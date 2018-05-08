@@ -15,6 +15,8 @@ public class Tb_User implements Serializable {
     @GenericGenerator(name = "system-uuid", strategy = "uuid")
     private String id;
 
+    private String usrName;
+
     private String deviceid;
 
     private String brandname;
@@ -22,7 +24,10 @@ public class Tb_User implements Serializable {
     private Date createtime;
 
     private String phone;
+
     private String province;
+
+    private String face_url;
 
 
     public Tb_User() {
@@ -74,5 +79,21 @@ public class Tb_User implements Serializable {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getFace_url() {
+        return face_url;
+    }
+
+    public void setFace_url(String face_url) {
+        this.face_url = face_url;
+    }
+
+    public String getUsrName() {
+        return usrName;
+    }
+
+    public void setUsrName(String usrName) {
+        this.usrName = usrName;
     }
 }

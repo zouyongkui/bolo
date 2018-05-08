@@ -1,6 +1,7 @@
 package com.zyk.bolo.utils;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Date;
 import java.util.UUID;
@@ -18,39 +19,38 @@ public class UploadUtils {
 
     public static final String BASE_PATH = "/data/img/bolo";
 
-    public static String upload(MultipartFile imageFile) {
-
-        logger.debug("BASE_PATH=" + BASE_PATH);
-        if (imageFile.isEmpty()) {
+    public static String upload(String path, MultipartFile imageFile) {
+        if (imageFile == null || imageFile.getSize() == 0) {
             return null;
         }
-        String filename = imageFile.getOriginalFilename();
 
-        String ext = null;
+        String filename = imageFile.getOriginalFilename();
+        String ext = "";
         if (filename.contains(".")) {
             ext = filename.substring(filename.lastIndexOf("."));
-        } else {
-            ext = "";
         }
         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
         String dirPath = DateUtil.formatDateASYYYYMMDD(new Date());
-        String nFileName = BASE_PATH + "/" + dirPath + uuid + ext;
-        File targetFile = new File(nFileName);
-        logger.error("上传文件：" + nFileName);
-//        if (!targetFile.exists()) {
-//            targetFile.mkdirs();
-//        } else {
-//            targetFile.delete();
-//        }
-        try {
-            imageFile.transferTo(targetFile);
-        } catch (IllegalStateException | IOException e) {
-            e.printStackTrace();
-            logger.error("上传文件成功 URL：异常");
+        String nFileName = uuid + ext;
+        String nFilePath = BASE_PATH + "/" + path + dirPath + "/";
+        File targetFile = new File(nFilePath);
+        boolean isExists = true;
+        if (!targetFile.exists()) {
+            isExists = targetFile.mkdirs();
         }
-        String accessUrl = "/" + dirPath + "/" + nFileName;
-        logger.error("上传文件成功 URL：" + accessUrl);
-        return accessUrl;
+        if (isExists) {
+            try {
+                FileOutputStream out = new FileOutputStream(nFilePath + nFileName);
+                out.write(imageFile.getBytes());
+                out.flush();
+                out.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            return null;
+        }
+        return nFilePath + nFileName;
     }
 
     /**

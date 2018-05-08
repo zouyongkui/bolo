@@ -9,6 +9,7 @@ import com.zyk.bolo.controller.base.AbstractController;
 import com.zyk.bolo.entity.Tb_Comment;
 import com.zyk.bolo.entity.Tb_Soup;
 import com.zyk.bolo.service.SoupService;
+import com.zyk.bolo.utils.UploadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class SoupController extends AbstractController {
     public Map<String, Object> getUserId(@RequestParam(value = "deviceId", required = false) String deviceId,
                                          @RequestParam(value = "brandName", required = false) String brandName,
                                          @RequestParam(value = "phoneNum", required = false) String phoneNum) {
-        Map<String, Object> rsMap = new HashMap<String, Object>();
+        Map<String, Object> rsMap = new HashMap<>();
         String userId = soupService.getUserId(deviceId, brandName, phoneNum);
         if (StringUtils.isEmpty(userId)) {
             rsMap.put("code", 0);
@@ -42,11 +43,12 @@ public class SoupController extends AbstractController {
     }
 
     @PostMapping(value = "/createSoup")
-    public Map<String, Object> createSoup(@RequestParam(value = "content", required = true) String content,
+    public Map<String, Object> createSoup(@RequestParam(value = "content") String content,
                                           @RequestParam(value = "pic", required = false) MultipartFile pic) {
-        soupService.updateSoup(content, "");
+        String picUrl = UploadUtils.upload("", pic);
+        int code = soupService.updateSoup(content, picUrl);
         Map<String, Object> rsMap = new HashMap<>();
-        rsMap.put("code", "200");
+        rsMap.put("code", code);
         return rsMap;
     }
 
@@ -71,7 +73,7 @@ public class SoupController extends AbstractController {
 
     @RequestMapping(value = "/getSoupList", method = RequestMethod.GET)
     public Map<String, Object> getSoupList() {
-        Map<String, Object> rsMap = new HashMap<String, Object>();
+        Map<String, Object> rsMap = new HashMap<>();
         List<Tb_Soup> tbsoupList = soupService.getSoupList();
         rsMap.put("code", 0);
         rsMap.put("soupList", tbsoupList == null ? "暂时没有更新哦" : tbsoupList);
@@ -80,17 +82,17 @@ public class SoupController extends AbstractController {
 
 
     @RequestMapping(value = "/delComment", method = RequestMethod.GET)
-    public Map<String, Object> delComment(@RequestParam(value = "id", required = true) String id) {
-        Map<String, Object> rsMap = new HashMap<String, Object>();
+    public Map<String, Object> delComment(@RequestParam(value = "id") String id) {
+        Map<String, Object> rsMap = new HashMap<>();
         int code = soupService.delComment(id);
         rsMap.put("code", code + "");
         return rsMap;
     }
 
     @RequestMapping(value = "/updateComment", method = RequestMethod.POST)
-    public Map<String, Object> updateComment(@RequestParam(value = "userId", required = true) String userId,
-                                             @RequestParam(value = "soupId", required = true) String soupId,
-                                             @RequestParam(value = "content", required = true) String content) {
+    public Map<String, Object> updateComment(@RequestParam(value = "userId") String userId,
+                                             @RequestParam(value = "soupId") String soupId,
+                                             @RequestParam(value = "content") String content) {
         Map<String, Object> rsMap = new HashMap<>();
         int code = soupService.updateComment(userId, soupId, content);
         rsMap.put("code", code);
@@ -110,8 +112,8 @@ public class SoupController extends AbstractController {
      */
 
     @RequestMapping(value = "/getComment", method = RequestMethod.GET)
-    public Map<String, Object> getComment(@RequestParam(value = "soupId", required = true) String soupId) {
-        Map<String, Object> rsMap = new HashMap<String, Object>();
+    public Map<String, Object> getComment(@RequestParam(value = "soupId") String soupId) {
+        Map<String, Object> rsMap = new HashMap<>();
         List<Tb_Comment> tbCommentList = soupService.getSoupComment(soupId);
         rsMap.put("code", "200");
         rsMap.put("data", tbCommentList);

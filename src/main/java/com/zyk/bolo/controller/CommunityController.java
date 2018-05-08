@@ -12,7 +12,7 @@ import com.zyk.bolo.utils.UploadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/community")
 public class CommunityController {
+
     private static Logger logger = LoggerFactory.getLogger(CommunityController.class);
     @Autowired
     private CommunityService service;
@@ -33,20 +34,17 @@ public class CommunityController {
             @RequestParam(value = "content") String content,
             @RequestParam(value = "userId") String userId,
             @RequestParam(value = "title") String title,
-            @RequestParam(value = "pic", required = false) MultipartFile pic) {
-        String picUrl = "----";
-        if (pic != null && pic.getSize() > 0) {
-            picUrl = UploadUtils.upload(pic);
-            logger.error("picUrl" + picUrl);
+            @RequestParam(value = "pic") MultipartFile pic) {
+
+        String picUrl = UploadUtils.upload("", pic);
+        Map<String, Object> rsMap = new HashMap<>();
+        if (StringUtils.isEmpty(content) || StringUtils.isEmpty(title) || StringUtils.isEmpty(content.trim()) || StringUtils.isEmpty(title.trim())) {
+            rsMap.put("code", -2);
         } else {
-            logger.error("picUrl" + "是空的");
+            int code = service.updateCommunity(userId, title, content, picUrl);
+            rsMap.put("code", code);
         }
-        Map<String, Object> rsMap = new HashMap<String, Object>();
-        int code = service.updateCommunity(userId, title, content, picUrl);
-//        List<Tb_Community> community = service.getCommunityList();
-//        rsMap.put("communityList", community);
-        rsMap.put("code", code);
-        rsMap.put("msg", "");
+        rsMap.put("msg", "suc");
         return rsMap;
     }
 
@@ -56,7 +54,7 @@ public class CommunityController {
 
     @RequestMapping(value = "/getCommunityList", method = RequestMethod.GET)
     public Map<String, Object> getCommunityList() {
-        Map<String, Object> rsMap = new HashMap<String, Object>();
+        Map<String, Object> rsMap = new HashMap<>();
         List<Tb_Community> community = service.getCommunityList();
         rsMap.put("code", 1);
         rsMap.put("msg", "");
@@ -71,10 +69,10 @@ public class CommunityController {
 
     @RequestMapping(value = "/updateFloor", method = RequestMethod.POST)
     public Map<String, Object> updateFloor(
-            @RequestParam(value = "content", required = true) String content,
-            @RequestParam(value = "userId", required = true) String userId,
-            @RequestParam(value = "communityId", required = true) String communityId) {
-        Map<String, Object> rsMap = new HashMap<String, Object>();
+            @RequestParam(value = "content") String content,
+            @RequestParam(value = "userId") String userId,
+            @RequestParam(value = "communityId") String communityId) {
+        Map<String, Object> rsMap = new HashMap<>();
         int code = service.updateFloor(userId, communityId, content);
         rsMap.put("code", code);
         rsMap.put("msg", "");
@@ -88,14 +86,15 @@ public class CommunityController {
     @RequestMapping(value = "/getFloors", method = RequestMethod.GET)
     public Map<String, Object> getCommunity(
             @RequestParam(value = "communityId") String communityId) {
-        Map<String, Object> rsMap = new HashMap<String, Object>();
+        Map<String, Object> rsMap = new HashMap<>();
         // 增加访问次数
         List<Tb_Floor> floors = service.getFloors(communityId);
         Tb_Community community = service.getCommunity(communityId);
         int visitCount = community.getVisitcount();
         rsMap.put("floors", floors);
         rsMap.put("code", 1);
-        rsMap.put("msg", "");
+        rsMap.put("msg", "suc");
+        rsMap.put("pic", community.getPicUrl());
         rsMap.put("community", community);
         rsMap.put("visitCount", visitCount);
         return rsMap;
@@ -107,9 +106,9 @@ public class CommunityController {
 
     @RequestMapping(value = "/updateContribution", method = RequestMethod.POST)
     public Map<String, Object> updateContribution(
-            @RequestParam(value = "content", required = true) String content,
-            @RequestParam(value = "userId", required = true) String userId) {
-        Map<String, Object> rsMap = new HashMap<String, Object>();
+            @RequestParam(value = "content") String content,
+            @RequestParam(value = "userId") String userId) {
+        Map<String, Object> rsMap = new HashMap<>();
         int code = service.updateContribution(userId, content);
         rsMap.put("code", code);
         rsMap.put("msg", "");
@@ -122,7 +121,7 @@ public class CommunityController {
 
     @RequestMapping(value = "/getContributionList", method = RequestMethod.GET)
     public Map<String, Object> getContributionList() {
-        Map<String, Object> rsMap = new HashMap<String, Object>();
+        Map<String, Object> rsMap = new HashMap<>();
         List<Tb_Contribution> list = service.getContributionList();
         rsMap.put("code", 1);
         rsMap.put("msg", "");
