@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.zyk.bolo.entity.Tb_Community;
 import com.zyk.bolo.entity.Tb_Contribution;
 import com.zyk.bolo.entity.Tb_Floor;
@@ -33,18 +35,20 @@ public class CommunityController {
     public Map<String, Object> updateCommunity(
             @RequestParam(value = "content") String content,
             @RequestParam(value = "userId") String userId,
-            @RequestParam(value = "title") String title,
             @RequestParam(value = "pic") MultipartFile pic) {
 
-        String picUrl = UploadUtils.upload("", pic);
+        String picUrl = UploadUtils.upload("/" + userId, pic);
         Map<String, Object> rsMap = new HashMap<>();
-        if (StringUtils.isEmpty(content) || StringUtils.isEmpty(title) || StringUtils.isEmpty(content.trim()) || StringUtils.isEmpty(title.trim())) {
+        if (StringUtils.isEmpty(content.trim())) {
             rsMap.put("code", -2);
+            rsMap.put("msg", "fail");
+
         } else {
-            int code = service.updateCommunity(userId, title, content, picUrl);
+            int code = service.updateCommunity(userId, "", content, picUrl);
             rsMap.put("code", code);
+            rsMap.put("msg", "suc");
+
         }
-        rsMap.put("msg", "suc");
         return rsMap;
     }
 
@@ -53,13 +57,8 @@ public class CommunityController {
      */
 
     @RequestMapping(value = "/getCommunityList", method = RequestMethod.GET)
-    public Map<String, Object> getCommunityList() {
-        Map<String, Object> rsMap = new HashMap<>();
-        List<Tb_Community> community = service.getCommunityList();
-        rsMap.put("code", 1);
-        rsMap.put("msg", "");
-        rsMap.put("communityList", community);
-        return rsMap;
+    public JSONObject getCommunityList() {
+        return service.getCommunityList();
     }
 
 

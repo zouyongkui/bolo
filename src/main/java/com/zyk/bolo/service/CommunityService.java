@@ -1,13 +1,15 @@
 package com.zyk.bolo.service;
 
-import com.zyk.bolo.entity.Tb_Comment;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.zyk.bolo.entity.Tb_Community;
 import com.zyk.bolo.entity.Tb_Contribution;
 import com.zyk.bolo.entity.Tb_Floor;
-import com.zyk.bolo.repository.CommentRepository;
+import com.zyk.bolo.entity.Tb_User;
 import com.zyk.bolo.repository.CommunityRepository;
 import com.zyk.bolo.repository.ContributionRepository;
 import com.zyk.bolo.repository.FloorRepository;
+import com.zyk.bolo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
@@ -24,6 +26,8 @@ public class CommunityService {
     FloorRepository floorRepository;
     @Autowired
     ContributionRepository contributionRepository;
+    @Autowired
+    UserRepository userRepository;
 
     public int updateCommunity(String userId, String title, String content, String picUrl) {
         Tb_Community community = new Tb_Community();
@@ -40,15 +44,26 @@ public class CommunityService {
         return 0;
     }
 
-    public List<Tb_Community> getCommunityList() {
+    public JSONObject getCommunityList() {
+        JSONObject object = new JSONObject();
         List<Tb_Community> communityList = communityRepository.findAll(new Sort(Sort.Direction.DESC, "createtime"));
+        JSONArray ja = new JSONArray();
         for (Tb_Community community : communityList) {
-            Tb_Floor floor = new Tb_Floor();
-            floor.setCommunityid(community.getId());
-            Example<Tb_Floor> ex = Example.of(floor);
-            community.setFloorsCount((int) floorRepository.count(ex));
+            Tb_User user = userRepository.getOne(community.getUserid());
+            JSONObject jo = new JSONObject();
+            jo.put("id", community.getId());
+            jo.put("createtime", community.getCreatetime());
+            jo.put("usrId", community.getUserid());
+            jo.put("replytime", community.getReplytime());
+            jo.put("content", community.getContent());
+            jo.put("picUrl", community.getPicUrl());
+            jo.put("usrFace", user.getFace_url());
+            ja.add(jo);
         }
-        return communityList;
+        object.put("code", 1);
+        object.put("msg", "");
+        object.put("communityList", ja);
+        return object;
     }
 
     public int updateFloor(String userId, String communityId, String content) {

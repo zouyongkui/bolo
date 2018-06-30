@@ -2,10 +2,8 @@ package com.zyk.bolo.service;
 
 import com.zyk.bolo.entity.Tb_User;
 import com.zyk.bolo.repository.UserRepository;
-import org.eclipse.jetty.websocket.common.util.TextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Service
 public class UserService {
@@ -23,12 +21,11 @@ public class UserService {
         return 0;
     }
 
-    public int modUsrInfo(String usrId, Tb_User usr) {
+
+    public int modUsrName(String usrId, String usrName) {
         if (userRepository.existsById(usrId)) {
             Tb_User tbUser = userRepository.findDistinctById(usrId);
-            if (StringUtils.isEmpty(usr.getUsrName())) {
-                tbUser.setUsrName(usr.getUsrName());
-            }
+            tbUser.setUsrName(usrName);
             userRepository.save(tbUser);
         } else {
             return -1;

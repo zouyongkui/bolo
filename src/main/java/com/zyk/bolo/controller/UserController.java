@@ -14,16 +14,24 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-
     @Autowired
     UserService userService;
-
 
     @PostMapping(value = "/modUsrFace")
     public JSONObject modUsrFace(@RequestParam(value = "usrId") String usrId,
                                  @RequestParam(value = "usrFace") MultipartFile usrFace) {
         String usrFaceUrl = UploadUtils.upload("usr" + usrId, usrFace);
         int code = userService.upLoadUsrFace(usrId, usrFaceUrl);
+        JSONObject object = new JSONObject();
+        object.put("code", code);
+        object.put("msg", "suc");
+        return object;
+    }
+
+    @PostMapping(value = "/modUsrName")
+    public JSONObject modUsrName(@RequestParam(value = "usrId") String usrId,
+                                 @RequestParam(value = "usrName") String usrName) {
+        int code = userService.modUsrName(usrId, usrName);
         JSONObject object = new JSONObject();
         object.put("code", code);
         object.put("msg", "suc");

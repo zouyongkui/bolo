@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
-import com.zyk.bolo.controller.base.AbstractController;
 import com.zyk.bolo.entity.Tb_Comment;
 import com.zyk.bolo.entity.Tb_Soup;
 import com.zyk.bolo.service.SoupService;
@@ -20,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api")
-public class SoupController extends AbstractController {
+public class SoupController  {
     private static Logger logger = LoggerFactory.getLogger(SoupController.class);
     @Autowired
     private SoupService soupService;

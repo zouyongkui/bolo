@@ -17,7 +17,7 @@ public class UploadUtils {
 
     private static Logger logger = LoggerFactory.getLogger(UploadUtils.class);
 
-    public static final String BASE_PATH = "/data/img/bolo";
+    private static final String BASE_PATH = "/data/img/soup";
 
     public static String upload(String path, MultipartFile imageFile) {
         if (imageFile == null || imageFile.getSize() == 0) {
@@ -30,9 +30,9 @@ public class UploadUtils {
             ext = filename.substring(filename.lastIndexOf("."));
         }
         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
-        String dirPath = DateUtil.formatDateASYYYYMMDD(new Date());
+        String dirPath = path + "/" + DateUtil.formatDateASYYYYMMDD(new Date()).replaceAll("-", "");
         String nFileName = uuid + ext;
-        String nFilePath = BASE_PATH + "/" + path + dirPath + "/";
+        String nFilePath = BASE_PATH + dirPath + "/";
         File targetFile = new File(nFilePath);
         boolean isExists = true;
         if (!targetFile.exists()) {
@@ -50,7 +50,7 @@ public class UploadUtils {
         } else {
             return null;
         }
-        return nFilePath + nFileName;
+        return dirPath + "/" + nFileName;
     }
 
     /**
