@@ -1,6 +1,5 @@
-package com.zyk.bolo.service;
+package com.zyk.bolo;
 
-import com.zyk.bolo.BoloApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 

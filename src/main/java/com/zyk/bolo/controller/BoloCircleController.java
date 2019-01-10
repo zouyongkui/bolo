@@ -1,6 +1,5 @@
 package com.zyk.bolo.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.zyk.bolo.service.BoloCircleService;
 import com.zyk.bolo.utils.UploadUtils;
 import org.slf4j.Logger;

@@ -1,7 +1,9 @@
 package com.zyk.bolo.service;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.zyk.bolo.entity.Tb_Comment;
 import com.zyk.bolo.entity.Tb_Soup;
@@ -9,13 +11,11 @@ import com.zyk.bolo.entity.Tb_User;
 import com.zyk.bolo.repository.CommentRepository;
 import com.zyk.bolo.repository.SoupRepository;
 import com.zyk.bolo.repository.UserRepository;
+import com.zyk.bolo.utils.IDGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -28,24 +28,32 @@ public class SoupService {
     @Autowired
     UserRepository userRepository;
 
-    public String getUserId(String deviceId, String brandName, String phoneNum) {
-        Tb_User user = new Tb_User();
-        user.setDeviceid(deviceId);
-        user.setBrandname(brandName);
-        user.setPhone(phoneNum);
-        Example<Tb_User> ex = Example.of(user);
-        if (!userRepository.findAll(ex).isEmpty()) {
-            user = userRepository.findAll(ex).get(0);
-            return user.getId();
+    public Map<String, Object> getUserInfo(String deviceId, String brandName, String phoneNum) {
+        HashMap<String, Object> map = new HashMap<>();
+        String usrName, usrFace, usrId;
+        if (userRepository.existsByPhoneEquals(phoneNum)) {
+            Tb_User user = userRepository.findByPhoneEquals(phoneNum);
+            usrId = user.getId();
+            usrName = user.getUsrName();
+            usrFace = user.getFace_url();
+        } else {
+            usrId = IDGenerator.getUUID();
+            usrName = "佚名";
+            usrFace = "";
+            Tb_User user = new Tb_User();
+            user.setId(usrId);
+            user.setDeviceid(deviceId);
+            user.setBrandname(brandName);
+            user.setPhone(phoneNum);
+            user.setCreatetime(new Date());
+            user.setUsrName(usrName);
+            userRepository.save(user);
         }
-        // TODO: 2018/4/9 异常处理
-        user.setCreatetime(new Date());
-        userRepository.saveAndFlush(user);
-        if (!userRepository.findAll(ex).isEmpty()) {
-            user = userRepository.findAll(ex).get(0);
-            return user.getId();
-        }
-        return null;
+        map.put("code", 0);
+        map.put("usrId", usrId);
+        map.put("usrName", usrName);
+        map.put("usrFace", usrFace);
+        return map;
     }
 
     public int updateSoup(String content, String picUrl) {

@@ -1,35 +1,42 @@
 package com.zyk.bolo.service;
 
+import com.zyk.bolo.Constant;
 import com.zyk.bolo.entity.Tb_User;
 import com.zyk.bolo.repository.UserRepository;
+import com.zyk.bolo.utils.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class UserService {
     @Autowired
     UserRepository userRepository;
 
-    public int upLoadUsrFace(String usrId, String usrFaceUrl) {
-        if (userRepository.existsById(usrId)) {
-            Tb_User tbUser = userRepository.findDistinctById(usrId);
-            tbUser.setFace_url(usrFaceUrl);
-            userRepository.save(tbUser);
-        } else {
-            return -1;
+    public Map<String, Object> modUserInfo(String usrId, String usrName, String usrFaceUrl) {
+        HashMap<String, Object> map = new HashMap<>();
+
+        if (!userRepository.existsById(usrId)) {
+            return ResultUtils.fail(null, Constant.MSG_INVALID_ID);
         }
-        return 0;
-    }
-
-
-    public int modUsrName(String usrId, String usrName) {
-        if (userRepository.existsById(usrId)) {
-            Tb_User tbUser = userRepository.findDistinctById(usrId);
+        Tb_User tbUser = userRepository.getOne(usrId);
+        map.put("code", 0);
+        if (!StringUtils.isEmpty(usrName)) {
             tbUser.setUsrName(usrName);
-            userRepository.save(tbUser);
+            map.put("usrName", usrName);
         } else {
-            return -1;
+            map.put("usrName", tbUser.getUsrName());
         }
-        return 0;
+        if (!StringUtils.isEmpty(usrFaceUrl)) {
+            tbUser.setFace_url(usrFaceUrl);
+            map.put("usrFace", usrFaceUrl);
+        } else {
+            map.put("usrFace", tbUser.getFace_url());
+        }
+        userRepository.save(tbUser);
+        return map;
     }
 }

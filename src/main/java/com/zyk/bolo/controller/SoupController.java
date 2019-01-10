@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api")
-public class SoupController  {
+public class SoupController {
     private static Logger logger = LoggerFactory.getLogger(SoupController.class);
     @Autowired
     private SoupService soupService;
@@ -28,17 +28,7 @@ public class SoupController  {
     public Map<String, Object> getUserId(@RequestParam(value = "deviceId", required = false) String deviceId,
                                          @RequestParam(value = "brandName", required = false) String brandName,
                                          @RequestParam(value = "phoneNum", required = false) String phoneNum) {
-        Map<String, Object> rsMap = new HashMap<>();
-        String userId = soupService.getUserId(deviceId, brandName, phoneNum);
-        if (StringUtils.isEmpty(userId)) {
-            rsMap.put("code", 0);
-            rsMap.put("msg", "未知错误");
-        } else {
-            rsMap.put("code", 1);
-            rsMap.put("msg", "");
-            rsMap.put("userId", userId);
-        }
-        return rsMap;
+        return soupService.getUserInfo(deviceId, brandName, phoneNum);
     }
 
     @PostMapping(value = "/createSoup")
